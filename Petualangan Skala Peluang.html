@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Petualangan Skala Peluang</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Nunito:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#EEF5FB;--ink:#14213D;--mute:#4B5B75;--card:#fff;--line:#D3DFEC;--acc:#0B7A75;--onacc:#fff;--red:#E63946;--blue:#3A86FF;
+--c0:#6C757D;--c1:#3A86FF;--c2:#E5A100;--c3:#F26B1D;--c4:#1E9E8B;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0D1626;--ink:#E8EEF7;--mute:#A5B3C9;--card:#17233A;--line:#2B3B59;--acc:#3CC7BC;--onacc:#06201E;--c0:#9AA5B1;--c1:#6FA6FF;--c2:#F4C542;--c3:#FF8F4D;--c4:#46D1BC}}
+:root[data-theme="dark"]{--bg:#0D1626;--ink:#E8EEF7;--mute:#A5B3C9;--card:#17233A;--line:#2B3B59;--acc:#3CC7BC;--onacc:#06201E;--c0:#9AA5B1;--c1:#6FA6FF;--c2:#F4C542;--c3:#FF8F4D;--c4:#46D1BC}
+html{scroll-behavior:smooth;scroll-padding-top:calc(env(safe-area-inset-top,0px) + 64px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 1.05rem/1.6 Nunito,system-ui,sans-serif}
+h1,h2,h3{font-family:'Baloo 2',Nunito,sans-serif;line-height:1.15;margin:0 0 .5rem}
+h1{font-size:clamp(2rem,6vw,3.6rem);font-weight:800}
+h2{font-size:clamp(1.5rem,4vw,2.2rem);font-weight:800}
+h3{font-size:1.2rem;font-weight:600}
+p{margin:.4rem 0;max-width:68ch}
+nav{position:sticky;top:0;z-index:10;background:var(--card);border-bottom:2px solid var(--line);padding-top:env(safe-area-inset-top,0px);display:flex;gap:.25rem;overflow-x:auto;padding-left:.6rem;padding-right:.6rem}
+nav a{flex:none;padding:.8rem .7rem;color:var(--ink);text-decoration:none;font-weight:800;font-size:.95rem;border-bottom:4px solid transparent}
+nav a:hover,nav a:focus-visible{border-color:var(--acc);outline:none}
+main{max-width:980px;margin:0 auto;padding:0 1rem 3rem}
+section{padding:2.5rem 0 .5rem}
+.card{background:var(--card);border:2px solid var(--line);border-radius:18px;padding:1.1rem}
+button{font:inherit;font-weight:800;cursor:pointer;border:2px solid var(--line);background:var(--card);color:var(--ink);border-radius:12px;padding:.65rem 1rem;min-height:44px}
+button:focus-visible,textarea:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button.pri{background:var(--acc);border-color:var(--acc);color:var(--onacc)}
+button:disabled{opacity:.55;cursor:default}
+.row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center}
+.hero{padding-top:2rem}
+.hero p{font-size:1.15rem;color:var(--mute)}
+/* skala */
+.scale{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;margin:1.2rem 0 .4rem}
+.scale button{padding:.6rem .1rem;font-size:clamp(.72rem,2.6vw,1rem);border-width:3px;border-radius:12px;line-height:1.2}
+.scale button[aria-pressed="true"]{color:#fff;border-color:transparent}
+.track{position:relative;height:14px;border-radius:9px;background:linear-gradient(90deg,var(--c0),var(--c1),var(--c2),var(--c3),var(--c4));margin:.8rem 0 .2rem}
+.pin{position:absolute;top:50%;width:26px;height:26px;border-radius:50%;background:var(--card);border:5px solid var(--ink);transform:translate(-50%,-50%);transition:left .4s}
+.ticks{display:flex;justify-content:space-between;font-weight:800;color:var(--mute);font-size:.9rem}
+.detail{border-left:8px solid var(--cc,var(--c0))}
+.detail ul{margin:.4rem 0 0;padding-left:1.2rem}
+.big{font-family:'Baloo 2',sans-serif;font-weight:800;font-size:1.5rem;color:var(--cc)}
+/* kelereng */
+.bags{display:grid;grid-template-columns:repeat(5,1fr);gap:.4rem;margin:1rem 0}
+.bags button{padding:.4rem .2rem;font-size:1.1rem}
+.bags button[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc)}
+.mini{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;margin:.3rem auto 0;width:70%}
+.m{aspect-ratio:1;border-radius:50%;background:var(--red);box-shadow:inset -2px -3px 0 rgba(0,0,0,.2)}
+.m.b{background:var(--blue)}
+.jar{display:grid;grid-template-columns:repeat(5,1fr);gap:6px;max-width:260px;margin:.5rem 0}
+.grid2{display:grid;grid-template-columns:1fr;gap:1rem}
+@media (min-width:720px){.grid2{grid-template-columns:1fr 1fr}}
+.stat{display:flex;gap:.8rem;flex-wrap:wrap;margin:.6rem 0}
+.stat div{flex:1 1 90px;background:var(--bg);border-radius:12px;padding:.5rem;text-align:center;font-weight:800}
+.stat b{display:block;font-size:1.6rem;font-family:'Baloo 2',sans-serif}
+.last{display:inline-block;width:28px;height:28px;border-radius:50%;margin:2px;box-shadow:inset -2px -3px 0 rgba(0,0,0,.2)}
+/* game & kuis */
+.opts{display:grid;gap:.5rem;margin:.8rem 0}
+@media (min-width:560px){.opts.five{grid-template-columns:repeat(5,1fr)}}
+.opts button{text-align:left}
+.opts.five button{text-align:center}
+.ok{border-color:var(--c4)!important;background:color-mix(in srgb,var(--c4) 22%,var(--card))!important}
+.no{border-color:var(--red)!important;background:color-mix(in srgb,var(--red) 18%,var(--card))!important}
+.fb{min-height:3.2rem;font-weight:600}
+.prog{height:10px;background:var(--line);border-radius:6px;overflow:hidden;margin:.4rem 0 1rem}
+.prog i{display:block;height:100%;background:var(--acc);transition:width .3s}
+.scene{font-size:1.25rem;font-weight:800;margin:.5rem 0}
+.score{font-family:'Baloo 2',sans-serif;font-size:3.4rem;font-weight:800;color:var(--acc);line-height:1}
+textarea{width:100%;min-height:80px;font:inherit;padding:.6rem;border-radius:12px;border:2px solid var(--line);background:var(--bg);color:var(--ink);margin:.2rem 0 .8rem}
+label{font-weight:800}
+.emo button{font-size:1.5rem}
+.emo button[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 3px var(--acc)}
+footer{text-align:center;color:var(--mute);padding:2rem 1rem}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+<style>
+:root:root:root{color-scheme:light;--bg:#F6F9FF;--ink:#0F1B3D;--mute:#5B6785;--card:#FFFFFF;--line:#E4EAF7;--acc:#3A5BFF;--onacc:#fff;--red:#FF5A6A;--blue:#4C9DFF;--c0:#94A3B8;--c1:#38BDF8;--c2:#FBBF24;--c3:#FB923C;--c4:#2DD4A4;--sh:0 12px 34px rgba(46,70,140,.09),0 2px 6px rgba(46,70,140,.05)}
+body{font-family:'Plus Jakarta Sans',Nunito,system-ui,sans-serif;background:var(--bg);position:relative;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background:radial-gradient(520px 420px at 8% 0%,#CFE3FF 0,transparent 70%),radial-gradient(480px 400px at 95% 12%,#FFE3CC 0,transparent 70%),radial-gradient(520px 460px at 70% 100%,#C8F5E6 0,transparent 70%)}
+h1,h2,h3{font-family:'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em}
+h1{font-weight:800;line-height:1.08}
+h2{font-weight:800}
+h3{font-weight:700}
+nav{top:calc(env(safe-area-inset-top,0px) + 8px);width:fit-content;max-width:calc(100% - 1rem);margin:.5rem auto 0;padding:.25rem .4rem;border:1px solid var(--line);border-radius:999px;background:rgba(255,255,255,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);box-shadow:var(--sh);scrollbar-width:none}
+nav::-webkit-scrollbar{display:none}
+nav a{padding:.5rem .9rem;border:0;border-radius:999px;font-size:.9rem}
+nav a:hover,nav a:focus-visible{background:var(--bg);color:var(--acc)}
+.card{border:1px solid var(--line);border-radius:26px;padding:1.4rem;box-shadow:var(--sh)}
+button{border:1px solid var(--line);border-radius:999px;padding:.65rem 1.2rem;box-shadow:0 1px 2px rgba(46,70,140,.06);transition:transform .15s,box-shadow .15s,background .15s}
+button:hover:not(:disabled){transform:translateY(-1px);box-shadow:0 6px 16px rgba(46,70,140,.12)}
+button.pri{background:linear-gradient(135deg,#3A5BFF,#4C9DFF);border-color:transparent;color:#fff;box-shadow:0 8px 20px rgba(58,91,255,.28)}
+.hero{padding-top:2.2rem}
+.hero h1{max-width:16ch}
+.hero p{color:var(--mute)}
+section{padding-top:3.2rem}
+h2{display:flex;align-items:center;gap:.6rem}
+h2::before{content:"";width:.7rem;height:1.6rem;border-radius:99px;background:linear-gradient(var(--c1),var(--c4))}
+.scale{gap:.5rem}
+.scale button{border-width:1px;border-radius:18px;padding:.8rem .2rem;background:var(--card);font-weight:800;box-shadow:var(--sh)}
+.scale button[aria-pressed="true"]{color:var(--ink);box-shadow:0 10px 24px rgba(46,70,140,.18);transform:translateY(-3px)}
+.track{height:16px;border-radius:99px;box-shadow:inset 0 1px 3px rgba(0,0,0,.12)}
+.pin{width:30px;height:30px;border:6px solid #fff;background:var(--ink);box-shadow:0 4px 12px rgba(15,27,61,.35)}
+.detail{border-left:1px solid var(--line);border-top:6px solid var(--cc,var(--c0))}
+.big{display:inline-block;color:var(--ink);background:var(--cc);padding:.15rem .9rem;border-radius:99px;font-size:1.15rem;margin-bottom:.4rem}
+.bags button{border-radius:20px;padding:.6rem .2rem;background:var(--card)}
+.bags button[aria-pressed="true"]{border-color:var(--acc);box-shadow:0 0 0 3px rgba(58,91,255,.25),var(--sh);transform:translateY(-2px)}
+.m{background:radial-gradient(circle at 32% 28%,#fff8 0,transparent 35%),var(--red);box-shadow:inset -2px -3px 0 rgba(0,0,0,.14)}
+.m.b{background:radial-gradient(circle at 32% 28%,#fff8 0,transparent 35%),var(--blue)}
+.stat div{background:var(--bg);border:1px solid var(--line);border-radius:18px}
+.opts button{border-radius:18px}
+.opts.five button{border-radius:999px}
+.prog{height:8px;border-radius:99px;background:var(--line)}
+.prog i{border-radius:99px;background:linear-gradient(90deg,var(--c1),var(--c4))}
+.score{background:linear-gradient(135deg,#3A5BFF,#2DD4A4);-webkit-background-clip:text;background-clip:text;color:transparent}
+textarea{border:1px solid var(--line);border-radius:18px;background:#fff}
+.emo button{border-radius:50%;padding:.4rem;width:52px;height:52px}
+footer{font-size:.9rem}
+@media (max-width:560px){main{padding:0 .9rem 2.5rem}.card{padding:1.1rem;border-radius:22px}}
+</style>
+</head>
+<body>
+<nav aria-label="Menu">
+<a href="#materi">Materi</a><a href="#simulasi">Simulasi</a><a href="#game">Game</a><a href="#latihan">Latihan</a><a href="#refleksi">Refleksi</a>
+</nav>
+<main>
+<header class="hero" id="materi">
+<h1>Seberapa mungkin sebuah kejadian terjadi?</h1>
+<p>Skala peluang membantu kita menyebut kemungkinan sebuah kejadian dengan tepat. Ketuk tiap kategori di bawah untuk mempelajarinya.</p>
+<div class="scale" id="scale" role="group" aria-label="Lima kategori skala peluang"></div>
+<div class="track"><div class="pin" id="pin" style="left:0%"></div></div>
+<div class="ticks"><span>0</span><span>½</span><span>1</span></div>
+<div class="card detail" id="detail" style="margin-top:1rem" aria-live="polite"></div>
+</header>
+
+<section id="simulasi">
+<h2>Simulasi kantong kelereng</h2>
+<p>Ada lima kantong, A sampai E. Tiap kantong berisi 10 kelereng merah dan biru. Kamu mengambil satu kelereng tanpa melihat, lalu mengembalikannya. Kejadiannya: <b>terambil kelereng merah</b>.</p>
+<div class="bags" id="bags" role="group" aria-label="Pilih kantong"></div>
+<div class="grid2">
+<div class="card">
+<h3 id="bagTitle">Kantong A</h3>
+<div class="jar" id="jar" aria-hidden="true"></div>
+<p id="bagInfo"></p>
+<div class="row">
+<button class="pri" id="d1">Ambil 1</button><button id="d10">Ambil 10</button><button id="d100">Ambil 100</button><button id="reset">Ulangi</button>
+</div>
+</div>
+<div class="card">
+<h3>Hasil percobaanmu</h3>
+<div class="stat"><div>Merah<b id="sR">0</b></div><div>Biru<b id="sB">0</b></div><div>Total<b id="sT">0</b></div></div>
+<div id="lastDraw" aria-live="polite" style="min-height:34px"></div>
+<p id="simMsg">Tekan “Ambil” untuk memulai.</p>
+<div class="track"><div class="pin" id="pin2" style="left:0%"></div></div>
+<div class="ticks"><span>0</span><span>½</span><span>1</span></div>
+</div>
+</div>
+<p style="color:var(--mute)">Coba ambil 100 kali. Hasil percobaan mendekati peluang sebenarnya, tapi jarang persis sama.</p>
+</section>
+
+<section id="game">
+<h2>Game: tentukan skala peluang</h2>
+<div class="card">
+<div class="row" style="justify-content:space-between"><b id="gRound">Soal 1 dari 8</b><b id="gScore">Skor 0</b></div>
+<div class="prog"><i id="gProg" style="width:0%"></i></div>
+<div class="scene" id="gQ"></div>
+<div class="opts five" id="gOpts"></div>
+<div class="fb" id="gFb" aria-live="polite"></div>
+<div class="row"><button class="pri" id="gNext" hidden>Lanjut</button><button id="gRestart" hidden>Main lagi</button></div>
+</div>
+</section>
+
+<section id="latihan">
+<h2>Latihan 10 soal</h2>
+<div class="card" id="quiz"></div>
+</section>
+
+<section id="refleksi">
+<h2>Refleksi pembelajaran</h2>
+<div class="card">
+<label for="nama">Namamu</label>
+<textarea id="nama" style="min-height:44px" rows="1"></textarea>
+<label>Perasaanmu belajar hari ini</label>
+<div class="row emo" id="emo" style="margin:.3rem 0 .8rem"></div>
+<label for="r1">1. Apa yang paling kamu pahami tentang skala peluang?</label>
+<textarea id="r1"></textarea>
+<label for="r2">2. Bagian mana yang masih membingungkan?</label>
+<textarea id="r2"></textarea>
+<label for="r3">3. Berikan satu contoh kejadian di sekitarmu, lalu tentukan kategorinya.</label>
+<textarea id="r3"></textarea>
+<div class="row"><button class="pri" id="rSave">Simpan refleksi</button><button id="rCopy" hidden>Salin teks</button></div>
+<div id="rOut" class="card" style="margin-top:1rem" hidden></div>
+</div>
+</section>
+</main>
+<footer>Dibuat untuk pembelajaran matematika: peluang kejadian.</footer>
+
+<script>
+const CATS=[
+{n:'Mustahil',s:'Mustahil',v:'Peluang = 0',c:'--c0',p:0,d:'Kejadian ini tidak akan pernah terjadi, apa pun yang kita lakukan.',ex:['Melempar dadu biasa dan muncul mata 7.','Manusia hidup tanpa udara selama sehari penuh.','Mengambil kelereng merah dari kantong yang isinya biru semua.']},
+{n:'Kemungkinan kecil',s:'Kecil',v:'Peluang antara 0 dan ½',c:'--c1',p:25,d:'Kejadian ini bisa terjadi, tetapi jarang. Banyaknya hasil yang diinginkan kurang dari setengah semua hasil.',ex:['Melempar dadu dan muncul mata 6 (1 dari 6).','Mengambil kelereng merah dari kantong berisi 2 merah dan 8 biru.']},
+{n:'Kemungkinan sama (seimbang)',s:'Sama',v:'Peluang = ½',c:'--c2',p:50,d:'Kejadian ini punya peluang terjadi dan tidak terjadi yang sama besar.',ex:['Melempar koin dan muncul sisi angka.','Melempar dadu dan muncul mata genap (3 dari 6).']},
+{n:'Kemungkinan besar',s:'Besar',v:'Peluang antara ½ dan 1',c:'--c3',p:75,d:'Kejadian ini sering terjadi, tetapi belum tentu. Hasil yang diinginkan lebih dari setengah semua hasil.',ex:['Melempar dadu dan muncul bukan mata 6 (5 dari 6).','Mengambil kelereng merah dari kantong berisi 8 merah dan 2 biru.']},
+{n:'Pasti',s:'Pasti',v:'Peluang = 1',c:'--c4',p:100,d:'Kejadian ini pasti terjadi. Semua hasil yang mungkin sesuai dengan yang diinginkan.',ex:['Matahari terbit dari timur besok pagi.','Melempar dadu dan muncul mata kurang dari 7.','Mengambil kelereng merah dari kantong berisi merah semua.']}];
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const $=id=>document.getElementById(id);
+const catOf=p=>p===0?0:p===1?4:p<.5?1:p===.5?2:3;
+
+/* MATERI */
+const sc=$('scale');
+CATS.forEach((c,i)=>{const b=document.createElement('button');b.textContent=c.s;b.dataset.i=i;b.onclick=()=>showCat(i);sc.appendChild(b)});
+function showCat(i){const c=CATS[i];
+[...sc.children].forEach((b,j)=>{const on=i===j;b.setAttribute('aria-pressed',on);b.style.background=on?css(CATS[j].c):'';b.style.borderColor=css(CATS[j].c)});
+$('pin').style.left=c.p+'%';
+const d=$('detail');d.style.setProperty('--cc',css(c.c));
+d.innerHTML='<div class="big">'+c.n+'</div><b>'+c.v+'</b><p>'+c.d+'</p><b>Contoh:</b><ul>'+c.ex.map(e=>'<li>'+e+'</li>').join('')+'</ul>'}
+showCat(0);
+
+/* SIMULASI */
+const BAGS={A:0,B:2,C:5,D:8,E:10};let bag='A',R=0,B=0;
+function mk(r,cls){let h='';for(let i=0;i<10;i++)h+='<div class="m'+(i<r?'':' b')+'"></div>';return h}
+const bg=$('bags');
+Object.keys(BAGS).forEach(k=>{const b=document.createElement('button');b.innerHTML=k+'<div class="mini">'+mk(BAGS[k])+'</div>';b.setAttribute('aria-label','Kantong '+k);b.onclick=()=>pick(k);b.dataset.k=k;bg.appendChild(b)});
+function pick(k){bag=k;R=0;B=0;[...bg.children].forEach(b=>b.setAttribute('aria-pressed',b.dataset.k===k));
+$('bagTitle').textContent='Kantong '+k;$('jar').innerHTML=mk(BAGS[k]);
+$('bagInfo').textContent='Isi kantong: '+BAGS[k]+' merah dan '+(10-BAGS[k])+' biru.';upd(null)}
+function draw(n){let l=[];for(let i=0;i<n;i++){const red=Math.random()<BAGS[bag]/10;red?R++:B++;l.push(red)}upd(l.slice(-10))}
+function upd(l){$('sR').textContent=R;$('sB').textContent=B;$('sT').textContent=R+B;
+$('lastDraw').innerHTML=(l||[]).map(r=>'<span class="last" style="background:'+(r?css('--red'):css('--blue'))+'"></span>').join('');
+const t=R+B,th=BAGS[bag]/10,ct=CATS[catOf(th)];
+$('pin2').style.left=(t?R/t*100:0)+'%';
+$('simMsg').innerHTML=t?'Merah terambil <b>'+R+' dari '+t+'</b> kali ('+Math.round(R/t*100)+'%). Peluang sebenarnya <b>'+BAGS[bag]+'/10</b>, jadi kategorinya <b style="color:'+css(ct.c)+'">'+ct.n+'</b>.':'Tekan “Ambil” untuk memulai.'}
+$('d1').onclick=()=>draw(1);$('d10').onclick=()=>draw(10);$('d100').onclick=()=>draw(100);$('reset').onclick=()=>pick(bag);
+pick('A');
+
+/* GAME */
+const SC=[
+['Besok matahari terbit dari arah timur.',4],['Seekor kucing berbicara dengan bahasa manusia.',0],['Melempar koin dan muncul sisi gambar.',2],
+['Melempar dadu dan muncul mata 7.',0],['Melempar dadu dan muncul mata kurang dari 7.',4],['Melempar dadu dan muncul mata 6.',1],
+['Melempar dadu dan muncul bukan mata 6.',3],['Kantong berisi 9 kelereng merah dan 1 biru. Terambil merah.',3],['Kantong berisi 1 kelereng merah dan 9 biru. Terambil merah.',1],
+['Melempar dadu dan muncul mata genap.',2],['Setelah hari Minggu, hari berikutnya adalah Senin.',4],['Ikan hidup di darat selamanya tanpa air.',0],
+['Kantong berisi 5 kelereng merah dan 5 biru. Terambil biru.',2],['Mengambil 1 kartu As dari 52 kartu bridge.',1]];
+const EXP=['Tidak mungkin terjadi, jadi peluangnya 0.','Bisa terjadi tapi jarang, peluangnya kurang dari ½.','Peluang terjadi dan tidak terjadi sama besar, yaitu ½.','Lebih sering terjadi daripada tidak, peluangnya lebih dari ½.','Pasti terjadi, jadi peluangnya 1.'];
+let gl=[],gi=0,gs=0,gd=false;const GN=8;
+const sh=a=>a.map(x=>[Math.random(),x]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
+function gStart(){gl=sh(SC).slice(0,GN);gi=0;gs=0;gRender()}
+function gRender(){gd=false;const q=gl[gi];
+$('gRound').textContent='Soal '+(gi+1)+' dari '+GN;$('gScore').textContent='Skor '+gs;$('gProg').style.width=(gi/GN*100)+'%';
+$('gQ').textContent=q[0];$('gFb').textContent='Pilih kategori yang paling tepat.';
+$('gNext').hidden=true;$('gRestart').hidden=true;
+const o=$('gOpts');o.innerHTML='';CATS.forEach((c,i)=>{const b=document.createElement('button');b.textContent=c.s;b.onclick=()=>gPick(i,b);o.appendChild(b)})}
+function gPick(i,b){if(gd)return;gd=true;const a=gl[gi][1],ok=i===a;
+if(ok)gs+=10;b.classList.add(ok?'ok':'no');if(!ok)$('gOpts').children[a].classList.add('ok');
+[...$('gOpts').children].forEach(x=>x.disabled=true);
+$('gFb').innerHTML=(ok?'Benar! +10. ':'Belum tepat. Jawabannya <b>'+CATS[a].n+'</b>. ')+EXP[a];
+$('gScore').textContent='Skor '+gs;
+if(gi<GN-1){$('gNext').hidden=false}else{$('gProg').style.width='100%';$('gFb').innerHTML+='<br><b>Selesai! Skor akhirmu '+gs+' dari '+GN*10+'.</b>';$('gRestart').hidden=false}}
+$('gNext').onclick=()=>{gi++;gRender()};$('gRestart').onclick=gStart;gStart();
+
+/* KUIS */
+const K='Mustahil|Kemungkinan kecil|Kemungkinan sama|Kemungkinan besar|Pasti'.split('|');
+const QZ=[
+['Peluang bahwa besok matahari terbit dari timur termasuk kategori…',K.slice(1).concat([]),3,'Matahari pasti terbit dari timur, jadi peluangnya 1.'],
+['Melempar dadu biasa dan muncul mata 8 termasuk…',[K[0],K[1],K[2],K[4]],0,'Dadu hanya bermata 1 sampai 6, jadi mata 8 mustahil (peluang 0).'],
+['Melempar koin dan muncul sisi gambar termasuk…',[K[1],K[2],K[3],K[4]],1,'Ada 2 sisi sama besar, jadi peluangnya ½: kemungkinan sama.'],
+['Kantong berisi 1 kelereng merah dan 9 biru. Mengambil merah termasuk…',[K[0],K[1],K[3],K[4]],1,'Peluangnya 1/10, kurang dari ½: kemungkinan kecil.'],
+['Kantong berisi 9 kelereng merah dan 1 biru. Mengambil merah termasuk…',[K[1],K[2],K[3],K[4]],2,'Peluangnya 9/10, lebih dari ½ tetapi belum 1: kemungkinan besar.'],
+['Kejadian yang peluangnya bernilai 0 disebut…',[K[0],K[2],K[3],K[4]],0,'Peluang 0 berarti kejadian tidak mungkin terjadi: mustahil.'],
+['Kejadian yang peluangnya bernilai 1 disebut…',[K[0],K[1],K[3],K[4]],3,'Peluang 1 berarti semua hasil sesuai: pasti terjadi.'],
+['Melempar dadu dan muncul mata genap (2, 4, 6) termasuk…',[K[1],K[2],K[3],K[4]],1,'Ada 3 dari 6 hasil, yaitu ½: kemungkinan sama.'],
+['Kantong berisi 4 kelereng hijau dan 4 kuning. Mengambil hijau termasuk…',[K[0],K[2],K[3],K[4]],1,'Jumlah hijau dan kuning sama, jadi peluangnya ½: kemungkinan sama.'],
+['Melempar dadu dan muncul mata kurang dari 7 termasuk…',[K[0],K[1],K[3],K[4]],3,'Semua mata dadu (1 sampai 6) kurang dari 7, jadi pasti.']];
+QZ[0][1]=[K[0],K[2],K[3],K[4]];QZ[0][2]=3;
+QZ[1][1]=[K[0],K[1],K[2],K[4]];
+let qi=0,qs=0,qa=[],qd=false;
+function qRender(){const z=$('quiz');
+if(qi>=QZ.length){const m=qs>=9?'Hebat sekali!':qs>=7?'Bagus, sedikit lagi sempurna.':qs>=5?'Lumayan. Baca materi dan coba simulasi lagi.':'Jangan menyerah. Ulangi materi dan mainkan game dulu.';
+z.innerHTML='<h3>Hasil latihanmu</h3><div class="score">'+qs*10+'</div><p>Kamu menjawab benar '+qs+' dari 10 soal. '+m+'</p><div class="opts">'+QZ.map((q,i)=>'<div>'+(qa[i]?'✅':'❌')+' Soal '+(i+1)+': '+q[3]+'</div>').join('')+'</div><button class="pri" id="qAgain">Ulangi latihan</button>';
+$('qAgain').onclick=()=>{qi=0;qs=0;qa=[];qRender()};return}
+const q=QZ[qi];qd=false;
+z.innerHTML='<div class="row" style="justify-content:space-between"><b>Soal '+(qi+1)+' dari 10</b><b>Nilai sementara '+qs*10+'</b></div><div class="prog"><i style="width:'+qi*10+'%"></i></div><div class="scene">'+q[0]+'</div><div class="opts" id="qo"></div><div class="fb" id="qf" aria-live="polite"></div><button class="pri" id="qn" hidden>'+(qi<9?'Soal berikutnya':'Lihat nilai')+'</button>';
+q[1].forEach((t,i)=>{const b=document.createElement('button');b.textContent=String.fromCharCode(65+i)+'. '+t;b.onclick=()=>{if(qd)return;qd=true;const ok=i===q[2];qa[qi]=ok;if(ok)qs++;b.classList.add(ok?'ok':'no');$('qo').children[q[2]].classList.add('ok');[...$('qo').children].forEach(x=>x.disabled=true);$('qf').innerHTML=(ok?'Benar! ':'Belum tepat. ')+q[3];$('qn').hidden=false;$('qn').focus()};$('qo').appendChild(b)});
+$('qn').onclick=()=>{qi++;qRender()}}
+qRender();
+
+/* REFLEKSI */
+let feel='';const FE=[['😕','Masih bingung'],['🙂','Cukup paham'],['😄','Paham sekali']];
+FE.forEach(([e,t])=>{const b=document.createElement('button');b.textContent=e;b.setAttribute('aria-label',t);b.setAttribute('aria-pressed','false');b.onclick=()=>{feel=e+' '+t;[...$('emo').children].forEach(x=>x.setAttribute('aria-pressed',x===b))};$('emo').appendChild(b)});
+let txt='';
+$('rSave').onclick=()=>{
+const v=id=>$(id).value.trim()||'-';
+const nilai=qa.length===10?(qs*10)+' dari 100':'belum mengerjakan latihan';
+txt='Refleksi Skala Peluang\nNama: '+v('nama')+'\nPerasaan: '+(feel||'-')+'\nNilai latihan: '+nilai+'\n1. Yang paling dipahami: '+v('r1')+'\n2. Yang masih membingungkan: '+v('r2')+'\n3. Contoh sendiri: '+v('r3');
+const o=$('rOut');o.hidden=false;o.innerHTML='<h3>Terima kasih, '+esc(v('nama'))+'!</h3>'+txt.split('\n').slice(2).map(l=>'<p>'+esc(l)+'</p>').join('');
+$('rCopy').hidden=false;o.scrollIntoView({behavior:'smooth',block:'nearest'})};
+$('rCopy').onclick=async()=>{try{await navigator.clipboard.writeText(txt);$('rCopy').textContent='Tersalin!'}catch(e){$('rCopy').textContent='Salin manual dari kotak di bawah'}};
+function esc(s){return s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]))}
+</script>
+</body>
+</html>
